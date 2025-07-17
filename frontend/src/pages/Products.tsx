@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Search, Filter, ShoppingCart, Star } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../lib/api';
 
 interface Product {
   _id: string;
@@ -35,7 +35,7 @@ const Products: React.FC = () => {
       params.append('page', page.toString());
       params.append('limit', '12');
 
-      const response = await axios.get(`http://localhost:5000/api/products?${params}`);
+      const response = await api.get(`/products?${params}`);
       return response.data;
     },
     { keepPreviousData: true }

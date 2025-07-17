@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ArrowLeft, Package, Clock, Truck, CheckCircle, XCircle, MapPin, CreditCard } from 'lucide-react';
-import axios from 'axios';
+import api from '../lib/api';
 
 interface OrderDetail {
   _id: string;
@@ -37,7 +37,7 @@ const OrderDetail: React.FC = () => {
   const { data: order, isLoading, error } = useQuery(
     ['order', id],
     async () => {
-      const response = await axios.get(`http://localhost:5000/api/orders/${id}`);
+      const response = await api.get(`/orders/${id}`);
       return response.data;
     }
   );

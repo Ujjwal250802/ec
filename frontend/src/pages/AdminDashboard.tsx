@@ -2,13 +2,13 @@ import React from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { Package, Users, ShoppingCart, DollarSign, TrendingUp, Eye } from 'lucide-react';
-import axios from 'axios';
+import api from '../lib/api';
 
 const AdminDashboard: React.FC = () => {
   const { data: dashboardData, isLoading, error } = useQuery(
     'admin-dashboard',
     async () => {
-      const response = await axios.get('http://localhost:5000/api/admin/dashboard');
+      const response = await api.get('/admin/dashboard');
       return response.data;
     }
   );

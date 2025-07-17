@@ -42,14 +42,14 @@ const AdminOrders: React.FC = () => {
   const { data, isLoading, error } = useQuery(
     ['admin-orders', { page, status: statusFilter }],
     async () => {
-      const response = await api.get(`http://localhost:5000/api/admin/orders?page=${page}&limit=10&status=${statusFilter}`);
+      const response = await api.get(`/admin/orders?page=${page}&limit=10&status=${statusFilter}`);
       return response.data;
     }
   );
 
   const updateStatusMutation = useMutation(
     ({ orderId, status }: { orderId: string; status: string }) =>
-      api.patch(`http://localhost:5000/api/orders/${orderId}/status`, { status }),
+      api.patch(`/orders/${orderId}/status`, { status }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-orders');

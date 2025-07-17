@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../lib/api';
 
 const VerifyEmail: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -11,7 +11,7 @@ const VerifyEmail: React.FC = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/auth/verify/${token}`);
+        const response = await api.get(`/auth/verify/${token}`);
         setStatus('success');
         setMessage(response.data.message);
       } catch (error: any) {

@@ -19,7 +19,7 @@ export const authenticate = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error('Authentication error:', error.message);
     res.status(401).json({ message: 'Token is not valid' });
   }
 };

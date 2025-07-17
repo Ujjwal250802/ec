@@ -33,7 +33,7 @@ const AdminPayments: React.FC = () => {
   const { data, isLoading, error } = useQuery(
     ['admin-payments', { page }],
     async () => {
-      const response = await api.get(`http://localhost:5000/api/admin/payments?page=${page}&limit=10`);
+      const response = await api.get(`/admin/payments?page=${page}&limit=10`);
       return response.data;
     }
   );

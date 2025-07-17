@@ -3,7 +3,7 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { Package, Clock, Truck, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import api from '../lib/api';
 
 interface Order {
   _id: string;
@@ -30,7 +30,7 @@ const Orders: React.FC = () => {
   const { data: orders, isLoading, error } = useQuery(
     'my-orders',
     async () => {
-      const response = await axios.get('http://localhost:5000/api/orders/my-orders');
+      const response = await api.get('/orders/my-orders');
       return response.data;
     },
     {

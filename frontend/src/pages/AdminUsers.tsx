@@ -20,7 +20,7 @@ const AdminUsers: React.FC = () => {
   const { data, isLoading, error } = useQuery(
     ['admin-users', { page }],
     async () => {
-      const response = await api.get(`http://localhost:5000/api/admin/users?page=${page}&limit=10`);
+      const response = await api.get(`/admin/users?page=${page}&limit=10`);
       return response.data;
     }
   );

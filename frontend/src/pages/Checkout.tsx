@@ -39,22 +39,11 @@ const Checkout: React.FC = () => {
         shippingAddress: shippingData,
       };
 
-      const orderResponse = await api.post(
-        'http://localhost:5000/api/orders',
-        orderData
-      );
+      const orderResponse = await api.post('/orders', orderData);
 
       const order = orderResponse.data;
 
-      const paymentResponse = await api.post(
-        'http://localhost:5000/api/payment/create-order',
-        { orderId: order._id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const paymentResponse = await api.post('/payment/create-order', { orderId: order._id });
 
       const paymentData = paymentResponse.data;
 
@@ -67,20 +56,12 @@ const Checkout: React.FC = () => {
         order_id: paymentData.id,
         handler: async (response: any) => {
           try {
-            await api.post(
-              'http://localhost:5000/api/payment/verify',
-              {
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                orderId: order._id,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
+            await api.post('/payment/verify', {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              orderId: order._id,
+            });
 
             clearCart();
             toast.success('Order placed successfully!');

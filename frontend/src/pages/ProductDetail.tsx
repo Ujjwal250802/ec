@@ -4,7 +4,7 @@ import { useQuery } from 'react-query';
 import { Star, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../lib/api';
 
 interface Product {
   _id: string;
@@ -27,7 +27,7 @@ const ProductDetail: React.FC = () => {
   const { data: product, isLoading, error } = useQuery(
     ['product', id],
     async () => {
-      const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+      const response = await api.get(`/products/${id}`);
       return response.data;
     }
   );

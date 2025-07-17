@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import api from '../lib/api'; // <-- Import your custom Axios instance
+import api from '../lib/api';
 
 interface User {
   id: string;
@@ -38,40 +38,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setTokenState] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`; // ✅ Use token in custom API instance
+  const setAuthHeaders = (authToken: string) => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+    api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+  };
 
-      axios.get(`${API_URL}/auth/me`)
-        .then(response => {
+  const clearAuthHeaders = () => {
+    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
+  };
+
+  useEffect(() => {
+    const initAuth = async () => {
+      if (token) {
+        try {
+          setAuthHeaders(token);
+          
+          // Try to get user info from token
+          const response = await api.get('/auth/me');
           setUser(response.data.user);
-        })
-        .catch(() => {
+        } catch (error) {
+          console.error('Token validation failed:', error);
           localStorage.removeItem('token');
           setTokenState(null);
-          delete axios.defaults.headers.common['Authorization'];
-          delete api.defaults.headers.common['Authorization'];
-        })
-        .finally(() => setLoading(false));
-    } else {
+          clearAuthHeaders();
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    initAuth();
   }, [token]);
 
   const setToken = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setTokenState(newToken);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`; // ✅ Also set for custom api instance
+    setAuthHeaders(newToken);
   };
 
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-      const { token, user } = response.data;
-      setToken(token);
-      setUser(user);
+      const { token: authToken, user: userData } = response.data;
+      setToken(authToken);
+      setUser(userData);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Login failed');
     }
@@ -80,9 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const adminLogin = async (email: string, password: string) => {
     try {
       const response = await axios.post(`${API_URL}/auth/admin/login`, { email, password });
-      const { token, user } = response.data;
-      setToken(token);
-      setUser(user);
+      const { token: authToken, user: userData } = response.data;
+      setToken(authToken);
+      setUser(userData);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Admin login failed');
     }
@@ -100,8 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
     setTokenState(null);
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
-    delete api.defaults.headers.common['Authorization'];
+    clearAuthHeaders();
   };
 
   return (

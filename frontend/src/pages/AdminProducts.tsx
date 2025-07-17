@@ -26,13 +26,13 @@ const AdminProducts: React.FC = () => {
   const { data, isLoading, error } = useQuery(
     ['admin-products', { page }],
     async () => {
-      const response = await api.get(`http://localhost:5000/api/admin/products?page=${page}&limit=10`);
+      const response = await api.get(`/admin/products?page=${page}&limit=10`);
       return response.data;
     }
   );
 
   const createProductMutation = useMutation(
-    (productData: any) => api.post('http://localhost:5000/api/products', productData),
+    (productData: any) => api.post('/products', productData),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-products');
@@ -46,7 +46,7 @@ const AdminProducts: React.FC = () => {
   );
 
   const updateProductMutation = useMutation(
-    ({ id, ...productData }: any) => api.put(`http://localhost:5000/api/products/${id}`, productData),
+    ({ id, ...productData }: any) => api.put(`/products/${id}`, productData),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-products');
@@ -60,7 +60,7 @@ const AdminProducts: React.FC = () => {
   );
 
   const deleteProductMutation = useMutation(
-    (id: string) => api.delete(`http://localhost:5000/api/products/${id}`),
+    (id: string) => api.delete(`/products/${id}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-products');

@@ -28,6 +28,11 @@ router.post('/create-order', authenticate, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
+    // Check if order already has a payment
+    if (order.paymentStatus === 'completed') {
+      return res.status(400).json({ message: 'Order already paid' });
+    }
+
     const options = {
       amount: order.totalAmount * 100, // amount in smallest currency unit
       currency: 'INR',
