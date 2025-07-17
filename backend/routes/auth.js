@@ -5,6 +5,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import { sendVerificationEmail } from '../utils/email.js';
 import passport from 'passport';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
