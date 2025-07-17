@@ -16,6 +16,7 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({ message: 'Token is not valid' });
     }
 
+    console.log('Authenticated user:', { id: user._id, email: user.email, isAdmin: user.isAdmin });
     req.user = user;
     next();
   } catch (error) {

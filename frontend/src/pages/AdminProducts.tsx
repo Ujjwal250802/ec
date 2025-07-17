@@ -84,6 +84,8 @@ const AdminProducts: React.FC = () => {
       stock: Number(formData.get('stock'))
     };
 
+    console.log('Submitting product data:', productData);
+
     if (editingProduct) {
       updateProductMutation.mutate({ id: editingProduct._id, ...productData });
     } else {

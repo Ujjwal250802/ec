@@ -8,8 +8,13 @@ import { authenticate, requireAdmin } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get dashboard stats
-router.get('/dashboard', authenticate, requireAdmin, async (req, res) => {
+router.get('/dashboard', authenticate, async (req, res) => {
   try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
     const totalUsers = await User.countDocuments();
@@ -60,8 +65,13 @@ router.get('/dashboard', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get all orders (admin)
-router.get('/orders', authenticate, requireAdmin, async (req, res) => {
+router.get('/orders', authenticate, async (req, res) => {
   try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     const { page = 1, limit = 10, status } = req.query;
     
     let query = {};
@@ -91,8 +101,13 @@ router.get('/orders', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get all products (admin)
-router.get('/products', authenticate, requireAdmin, async (req, res) => {
+router.get('/products', authenticate, async (req, res) => {
   try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     const { page = 1, limit = 10 } = req.query;
 
     const products = await Product.find()
@@ -116,8 +131,13 @@ router.get('/products', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get all users (admin)
-router.get('/users', authenticate, requireAdmin, async (req, res) => {
+router.get('/users', authenticate, async (req, res) => {
   try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     const { page = 1, limit = 10 } = req.query;
 
     const users = await User.find()
@@ -141,8 +161,13 @@ router.get('/users', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get payment history (admin)
-router.get('/payments', authenticate, requireAdmin, async (req, res) => {
+router.get('/payments', authenticate, async (req, res) => {
   try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
     const { page = 1, limit = 10 } = req.query;
 
     const payments = await Payment.find()

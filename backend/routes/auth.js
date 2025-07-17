@@ -146,8 +146,10 @@ router.post('/admin/login', [
         });
         await adminUser.save();
       } else {
-        adminUser.isAdmin = true;
-        await adminUser.save();
+        if (!adminUser.isAdmin) {
+          adminUser.isAdmin = true;
+          await adminUser.save();
+        }
       }
 
       const token = jwt.sign(
