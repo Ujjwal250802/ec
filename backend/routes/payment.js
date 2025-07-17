@@ -17,20 +17,30 @@ const razorpay = new Razorpay({
 // Create Razorpay order
 router.post('/create-order', authenticate, async (req, res) => {
   try {
+    console.log('Creating Razorpay order for user:', req.user._id);
     const { orderId } = req.body;
+    console.log('Order ID:', orderId);
 
     const order = await Order.findById(orderId).populate('items.product');
     if (!order) {
+      console.log('Order not found:', orderId);
       return res.status(404).json({ message: 'Order not found' });
     }
 
     if (order.user.toString() !== req.user._id.toString()) {
+      console.log('Access denied. Order user:', order.user.toString(), 'Request user:', req.user._id.toString());
       return res.status(403).json({ message: 'Access denied' });
     }
 
     // Check if order already has a payment
     if (order.paymentStatus === 'completed') {
+      console.log('Order already paid:', orderId);
       return res.status(400).json({ message: 'Order already paid' });
+    }
+
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error('Razorpay credentials not configured');
+      return res.status(500).json({ message: 'Payment system not configured' });
     }
 
     const options = {
@@ -43,7 +53,9 @@ router.post('/create-order', authenticate, async (req, res) => {
       }
     };
 
+    console.log('Creating Razorpay order with options:', options);
     const razorpayOrder = await razorpay.orders.create(options);
+    console.log('Razorpay order created:', razorpayOrder.id);
     
     res.json({
       id: razorpayOrder.id,
@@ -53,6 +65,7 @@ router.post('/create-order', authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error('Create Razorpay order error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Server error' });
   }
 });

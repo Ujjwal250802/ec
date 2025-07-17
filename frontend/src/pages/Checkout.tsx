@@ -7,6 +7,13 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
 
+// Declare Razorpay type for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 interface ShippingForm {
   street: string;
   city: string;
@@ -28,6 +35,11 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    if (!window.Razorpay) {
+      toast.error('Payment system not loaded. Please refresh the page.');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -39,11 +51,15 @@ const Checkout: React.FC = () => {
         shippingAddress: shippingData,
       };
 
+      console.log('Creating order with data:', orderData);
       const orderResponse = await api.post('/orders', orderData);
+      console.log('Order created:', orderResponse.data);
 
       const order = orderResponse.data;
 
+      console.log('Creating payment order for order ID:', order._id);
       const paymentResponse = await api.post('/payment/create-order', { orderId: order._id });
+      console.log('Payment order created:', paymentResponse.data);
 
       const paymentData = paymentResponse.data;
 
@@ -56,6 +72,7 @@ const Checkout: React.FC = () => {
         order_id: paymentData.id,
         handler: async (response: any) => {
           try {
+            console.log('Payment successful, verifying:', response);
             await api.post('/payment/verify', {
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
@@ -68,7 +85,13 @@ const Checkout: React.FC = () => {
             navigate(`/orders/${order._id}`);
           } catch (error) {
             console.error('Payment verification failed:', error);
-            toast.error('Payment verification failed');
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+            toast.error('Payment cancelled');
           }
         },
         prefill: {
@@ -80,11 +103,14 @@ const Checkout: React.FC = () => {
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
+      console.log('Opening Razorpay with options:', options);
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.response?.data?.message || 'Order creation failed');
+      const errorMessage = error.response?.data?.message || 'Order creation failed';
+      console.error('Error details:', error.response?.data);
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -242,8 +268,6 @@ const Checkout: React.FC = () => {
         </div>
       </div>
 
-      {/* Razorpay Script */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     </div>
   );
 };

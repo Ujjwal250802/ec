@@ -55,8 +55,12 @@ router.post('/', authenticate, [
   body('shippingAddress.country').trim().isLength({ min: 2 }).withMessage('Country required')
 ], async (req, res) => {
   try {
+    console.log('Creating order for user:', req.user._id);
+    console.log('Order data:', req.body);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -67,12 +71,15 @@ router.post('/', authenticate, [
     const orderItems = [];
 
     for (const item of items) {
+      console.log('Processing item:', item);
       const product = await Product.findById(item.product);
       if (!product) {
+        console.log('Product not found:', item.product);
         return res.status(400).json({ message: `Product not found: ${item.product}` });
       }
 
       if (product.stock < item.quantity) {
+        console.log('Insufficient stock for product:', product.name, 'Available:', product.stock, 'Requested:', item.quantity);
         return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
       }
 
@@ -85,6 +92,9 @@ router.post('/', authenticate, [
       totalAmount += product.price * item.quantity;
     }
 
+    console.log('Order items:', orderItems);
+    console.log('Total amount:', totalAmount);
+
     const order = new Order({
       user: req.user._id,
       items: orderItems,
@@ -95,9 +105,11 @@ router.post('/', authenticate, [
     await order.save();
     await order.populate('items.product');
 
+    console.log('Order created successfully:', order._id);
     res.status(201).json(order);
   } catch (error) {
     console.error('Create order error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Server error' });
   }
 });
