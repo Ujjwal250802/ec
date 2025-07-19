@@ -15,6 +15,7 @@ const AuthCallback: React.FC = () => {
       setToken(token);
       navigate('/');
     } else if (error) {
+      console.error('Auth callback error:', error);
       navigate('/login?error=auth_failed');
     } else {
       navigate('/login');
